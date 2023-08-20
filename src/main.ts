@@ -4,17 +4,17 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
   const config = new DocumentBuilder()
-  .setTitle('ManagerJob')
-  .setDescription('Manager')
-  .setVersion('1.0')
-  .addTag('manager')
-  .build();
+    .setTitle('ManagerJob')
+    .setDescription('Manager')
+    .setVersion('1.0')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'access-token')
+    .addTag('manager')
+    .build();
 
-// Создаем Swagger Модуль для начало работы
-const document = SwaggerModule.createDocument(app, config);
-SwaggerModule.setup('api', app, document);
+  // Создаем Swagger Модуль для начало работы
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }

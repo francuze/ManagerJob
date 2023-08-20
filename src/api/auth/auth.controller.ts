@@ -1,23 +1,57 @@
-import { Controller,Post,Body } from '@nestjs/common';
+import { Controller, Post, Body, Req,UseGuards, } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDTO } from './dto/register.dto';
 import { LoginDTO } from './dto/login.dto';
-import { ApiParam } from '@nestjs/swagger';
+import { Response } from 'express';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiResponse,
+  ApiBody,
+  ApiTags
+} from '@nestjs/swagger';
+import { JwtStrategy } from 'src/guards/jwt.strategy';
+import { AuthGuard } from '@nestjs/passport';
 
+
+@ApiTags('auth')
+@ApiBearerAuth('access-token')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @ApiBody({ type: RegisterDTO })
+  @ApiCreatedResponse({ description: 'User successfully registered.' })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error.' })
   async register(@Body() registerDTO: RegisterDTO) {
-    this.authService.register(registerDTO)
+    this.authService.register(registerDTO);
   }
 
+  @UseGuards(JwtStrategy)
   @Post('login')
+  @ApiBody({ type: LoginDTO })
+  @ApiBadRequestResponse({ description: 'Bad request.' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error.' })
   async login(@Body() loginDTO: LoginDTO) {
-    console.log(loginDTO);
+    return await this.authService.login(loginDTO);
+  }
+
+  @UseGuards(JwtStrategy)
+  @Post('logout')
+  @ApiResponse({ status: 200, description: 'User successfully logged out.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiInternalServerErrorResponse({ description: 'Internal server error.' })
+  async logout(@Req() req) {
     
-    return this.authService.login(loginDTO);
+    const token = req.headers.authorization.split(' ')[1]; // Извлекаем токен из заголовка
+
+    await this.authService.logout(token);
+    
+    return { message: 'Logged out successfully' };
   }
 
 }

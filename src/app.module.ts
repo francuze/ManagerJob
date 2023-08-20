@@ -6,6 +6,8 @@ import { User } from './modules/user.entity';
 import { UserService } from './user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './api/auth/constants';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './guards/jwt.strategy';
 
 @Module({
   imports: [SequelizeModule.forRoot({
@@ -19,14 +21,14 @@ import { jwtConstants } from './api/auth/constants';
     synchronize: true, // ВНИМАНИЕ: это свойство будет синхронизировать модели с базой данных, используйте только в разработке
   }),
   SequelizeModule.forFeature([User]),
+  PassportModule.register({ defaultStrategy: 'jwt' }),
   JwtModule.register({
     global: true,
     secret: jwtConstants.secret,
     signOptions: { expiresIn: '60s' },
   }),
-
 ],
   controllers: [AuthController],
-  providers: [AuthService, UserService],
+  providers: [AuthService, UserService,JwtStrategy],
 })
 export class AppModule {}
