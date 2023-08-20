@@ -10,7 +10,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDTO: RegisterDTO) {
-    // ... ваша логика регистрации
+    this.authService.register(registerDTO)
   }
 
   @Post('login')

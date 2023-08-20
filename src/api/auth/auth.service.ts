@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/user.service'; // Подставьте путь к вашему UserService
 import { LoginDTO } from './dto/login.dto';
@@ -38,7 +38,11 @@ export class AuthService {
     // Проверяем, не существует ли пользователь с таким email
     const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new HttpException(
+        'User with that email already exists',
+        HttpStatus.BAD_REQUEST,
+      );
+
     }
 
     // Создаем нового пользователя

@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthService } from './api/auth/auth.service';
 import { AuthController } from './api/auth/auth.controller';
 import { User } from './modules/user.entity';
@@ -28,7 +26,7 @@ import { jwtConstants } from './api/auth/constants';
   }),
 
 ],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService, UserService],
+  controllers: [AuthController],
+  providers: [AuthService, UserService],
 })
 export class AppModule {}
