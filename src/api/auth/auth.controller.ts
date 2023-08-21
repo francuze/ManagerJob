@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req,UseGuards, } from '@nestjs/common';
+import { Controller, Post, Body, Req,UseGuards, Get, } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDTO } from './dto/register.dto';
 import { LoginDTO } from './dto/login.dto';
@@ -12,7 +12,7 @@ import {
   ApiBody,
   ApiTags
 } from '@nestjs/swagger';
-import { JwtStrategy } from 'src/guards/jwt.strategy';
+import { JwtAuthGuard } from 'src/guards/JwtAuthGuard';
 import { AuthGuard } from '@nestjs/passport';
 
 
@@ -31,7 +31,6 @@ export class AuthController {
     this.authService.register(registerDTO);
   }
 
-  @UseGuards(JwtStrategy)
   @Post('login')
   @ApiBody({ type: LoginDTO })
   @ApiBadRequestResponse({ description: 'Bad request.' })
@@ -40,7 +39,7 @@ export class AuthController {
     return await this.authService.login(loginDTO);
   }
 
-  @UseGuards(JwtStrategy)
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @ApiResponse({ status: 200, description: 'User successfully logged out.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -53,5 +52,11 @@ export class AuthController {
     
     return { message: 'Logged out successfully' };
   }
-
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async me(@Req() req) {
+    return await req.user.dataValues;
+  }
 }

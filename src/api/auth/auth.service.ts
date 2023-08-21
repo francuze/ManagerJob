@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/user.service'; // Подставьте путь к вашему UserService
 import { LoginDTO } from './dto/login.dto';
 import { RegisterDTO } from './dto/register.dto';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,9 +30,10 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
 
-    if (user && await user.comparePassword(password)) {
+    if (user && await bcrypt.compare(password, user.password)) {
       return user;
     }
+      
     return null;
   }
 
@@ -49,7 +51,7 @@ export class AuthService {
     return { accessToken, userId: user.id };
   }
   async register(registerDTO: RegisterDTO): Promise<any> {
-    const { email } = registerDTO;
+    const { email, password,firstName,lastName } = registerDTO;
 
     // Проверяем, не существует ли пользователь с таким email
     const existingUser = await this.userService.findByEmail(email);
@@ -58,11 +60,18 @@ export class AuthService {
         'User with that email already exists',
         HttpStatus.BAD_REQUEST,
       );
-
     }
 
-    // Создаем нового пользователя
-    const newUser = await this.userService.createUser(registerDTO);
+    // Хешируем пароль перед сохранением
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Создаем нового пользователя с хешированным паролем
+    const newUser = await this.userService.createUser({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName
+    });
 
     // Генерируем токен
     const payload = { email: newUser.email, sub: newUser.id };
@@ -80,5 +89,4 @@ export class AuthService {
     // Добавляем токен в черный список
     this.invalidatedTokens.add(token);
   }
-
 }
