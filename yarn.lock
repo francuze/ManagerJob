@@ -4984,7 +4984,7 @@ sequelize-typescript@^2.0.0:
   dependencies:
     glob "7.2.0"
 
-sequelize@^6.3.5, sequelize@>=6.20.1:
+sequelize@^6.3.5, sequelize@^6.32.1, sequelize@>=6.20.1:
   version "6.32.1"
   resolved "https://registry.npmjs.org/sequelize/-/sequelize-6.32.1.tgz"
   integrity sha512-3Iv0jruv57Y0YvcxQW7BE56O7DC1BojcfIrqh6my+IQwde+9u/YnuYHzK+8kmZLhLvaziRT1eWu38nh9yVwn/g==

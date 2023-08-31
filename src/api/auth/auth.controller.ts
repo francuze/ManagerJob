@@ -13,7 +13,6 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/JwtAuthGuard';
-import { AuthGuard } from '@nestjs/passport';
 
 
 @ApiTags('auth')
@@ -57,6 +56,6 @@ export class AuthController {
   @Get('me')
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async me(@Req() req) {
-    return await req.user.dataValues;
+    return await req.user;
   }
 }

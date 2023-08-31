@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module,NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthService } from './api/auth/auth.service';
 import { AuthController } from './api/auth/auth.controller';
@@ -8,6 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './api/auth/constants';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './guards/jwt.strategy';
+import { ProjectsController } from './api/projects/projects.controller';
+import { ProjectsService } from './api/projects/projects.service';
+import { Project } from './modules/projects.enitity';
+import { ProjectUser } from './modules/projectUsers.enitity';
+import { ProjectMiddleware } from './project.middleware';
 
 @Module({
   imports: [SequelizeModule.forRoot({
@@ -20,15 +25,21 @@ import { JwtStrategy } from './guards/jwt.strategy';
     autoLoadModels: true,
     synchronize: true, // ВНИМАНИЕ: это свойство будет синхронизировать модели с базой данных, используйте только в разработке
   }),
-  SequelizeModule.forFeature([User]),
-  PassportModule.register({ defaultStrategy: 'jwt' }),
+  SequelizeModule.forFeature([User,Project,ProjectUser]),
+  PassportModule,
   JwtModule.register({
     global: true,
     secret: jwtConstants.secret,
-    signOptions: { expiresIn: '60s' },
+    signOptions: { expiresIn: '1h' },
   }),
 ],
-  controllers: [AuthController],
-  providers: [AuthService, UserService,JwtStrategy],
+  controllers: [AuthController, ProjectsController],
+  providers: [AuthService, UserService,JwtStrategy, ProjectsService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ProjectMiddleware)
+      .forRoutes('*'); // Применить middleware ко всем роутам
+  }
+}

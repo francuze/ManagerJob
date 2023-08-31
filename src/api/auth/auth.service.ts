@@ -18,12 +18,12 @@ export class AuthService {
   }
   
   async validateUserById(userId: number) {
-    // Fetch the user from the database using the UserService
+    
     const user = await this.userService.findById(userId);
     if (!user) {
       return null; // User not found
     }
-    // You can perform additional checks or validations here if needed
+  
     return user;
   }
 
@@ -33,7 +33,7 @@ export class AuthService {
     if (user && await bcrypt.compare(password, user.password)) {
       return user;
     }
-      
+
     return null;
   }
 
@@ -44,11 +44,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { email: user.email, sub: user.id };
-    const accessToken = this.jwtService.sign(payload);
-    
+    const payload = { sub: user.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
 
-    return { accessToken, userId: user.id };
   }
   async register(registerDTO: RegisterDTO): Promise<any> {
     const { email, password,firstName,lastName } = registerDTO;

@@ -18,6 +18,7 @@ export class UserService {
   async findById(id: number): Promise<User> {
     const user = await this.userModel.findOne({
       where: { id },
+      raw: true
     });
 
     if (!user) {
@@ -26,7 +27,13 @@ export class UserService {
 
     return user;
   }
-
+  async findByIds(ids: number[]): Promise<User[]> {
+    return this.userModel.findAll({
+      where: {
+        id: ids,
+      },
+    })
+  }
   async findByEmail(email: string): Promise<User> {
     return await this.userModel.findOne({
       where: { email },
